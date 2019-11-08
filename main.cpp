@@ -12,7 +12,7 @@ using std::cout;
 int main() {
 
 	FileParser parser("input.txt", "output.txt");
-	Processor<32, 5> pros(CommandParser{});
+	Processor<8, 5> pros(CommandParser{});
 	cout << parser.parse(pros) << '\n';
 
 	return 0;

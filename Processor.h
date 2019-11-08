@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <ostream>
+#include <string>
 #include <vector>
 
 #include "CommandParser.h"
@@ -49,7 +51,14 @@ private:
 };
 
 template <size_t Bits, size_t N>
-Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0) { }
+Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0) {
+	int i = 0;
+	for (auto& x : registers) {
+		x.setName("R" + std::to_string(i+1));
+		x.setNumber(i + 1);
+		++i;
+	}
+}
 
 template <size_t Bits, size_t N>
 Register<Bits>& Processor<Bits, N>::findRegister(const string& s) {
