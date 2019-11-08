@@ -9,20 +9,24 @@ using std::string;
 template <size_t N>
 class Register {
 public:
-	Register();
-	Register(int n, string name);
+	Register() = default;
+	Register(int n, string str) : number(n), name(str) {}
 
 	Register(const Register&) = default;
 	Register<N>& operator=(const Register<N>&) = default;
 	~Register() = default;
 
-	void setNumber(int n) { number = intToSet(n); }
+	void setNumber(int n) { number = intToBitSet(n); }
 	void setName(const string& s) { name = s; }
 
-	int getNumber() const { return setToInt(number); }
+	int getNumber() const { return number.to_string(); }
 	string getName() const { return name; }
 
-	void invert();
+	void invert() {
+		for (int i = 0; i < N; ++i)
+			number.flip(i);
+	}
+
 	Register& operator<<(int bits);
 	Register& operator>>(int bits);
 
@@ -32,17 +36,16 @@ public:
 	friend Register operator-(const Register<N1>&, const Register<N2>&);
 	
 	template <size_t N1, size_t N2>
-	friend bool operator&&(const Register<N1>&, const Register<N2>&);
+	friend bool operator&(const Register<N1>& ob1, const Register<N2>& ob2) { return ob1 & ob2; }
 	template <size_t N1, size_t N2>
-	friend bool operator||(const Register<N1>&, const Register<N2>&);
+	friend bool operator|(const Register<N1>& ob1, const Register<N2>& ob2) { return ob1 | ob2; }
+	template <size_t N1, size_t N2>
+	friend bool operator^(const Register<N1>& ob1, const Register<N2>& ob2) { return ob1 ^ ob2; }
 
 private:
 
-	bitset<N> intToSet(int) const {
-		return nullptr;
-	}
-	int setToInt(bitset<N>) const {
-		return nullptr;
+	bitset<N> intToBitSet(int) const {
+		return bitset<N>;
 	}
 
 	bitset<N> number;

@@ -17,6 +17,7 @@ public:
 	FileParser(const FileParser&) = default;
 	FileParser& operator=(const FileParser&) = default;
 	FileParser(const string&, const string&);
+	~FileParser();
 
 	template <size_t Bits, size_t Size>
 	bool parse(const Processor<Bits, Size>&);
@@ -35,6 +36,13 @@ FileParser::FileParser(const string& in, const string& out) {
 	inFile.open(in, std::ios_base::in);
 	outFile.open(out, std::ios_base::out);
 	st = checkState();
+}
+
+FileParser::~FileParser() {
+	if (inFile.is_open())
+		inFile.close();
+	if (outFile.is_open())
+		outFile.close();
 }
 
 template<size_t Bits, size_t Size>
