@@ -32,8 +32,9 @@ public:
 	const_iterator cend() const { return registers.cend(); }
 
 	void out(std::ostream&) const;
-	//template <size_t Bits, size_t N>
-	//friend std::ostream& operator<<(std::ostream&, const Processor<Bits, N>&);
+	
+	template <size_t Bits, size_t N>
+	friend std::ostream& operator<<(std::ostream&, const Processor<Bits, N>&);
 
 private:
 
@@ -82,9 +83,9 @@ void Processor<Bits, N>::doCommand() {
 
 template <size_t Bits, size_t N>
 void Processor<Bits, N>::out(std::ostream& outStream) const {
-	//if (operations.empty())
-	//	return;
-	//outStream << "Command is: " << operations[operations.size() - 1];
+	if (operations.empty())
+		return;
+	outStream << "Command is: " << operations[operations.size() - 1] << '\n';
 	int i = 1;
 	for (auto it = registers.begin(); it != registers.end(); ++it, ++i)
 		outStream << "R" << i << " " << (it->number()) << '\n';
@@ -94,22 +95,22 @@ void Processor<Bits, N>::out(std::ostream& outStream) const {
 	outStream << "PS " << (signStatus == Sign::Plus ? 0 : 1) << '\n';
 }
 
-/*
+
 template <size_t Bits, size_t N>
 std::ostream& operator<<(std::ostream& out, const Processor<Bits, N>& pros) {
 	if (pros.operations.empty())
-		return;
-	out << "Command is: " << *pros.operations.end();
+		return out;
+	out << "Command is: " << pros.operations[pros.operations.size() - 1] << '\n';
 	int i = 1;
 	for (auto it = pros.registers.begin(); it != pros.registers.end(); ++it, ++i)
-		out << "R" << i << " " << it->to_string() << '\n';
+		out << "R" << i << " " << (it->number()) << '\n';
 
 	out << "PC " << pros.commandNumber << '\n';
 	out << "TC " << pros.tactNumber << '\n';
-	out << "PS " << pros.signStatus == Sign::Plus ? 0 : 1;
-
+	out << "PS " << (pros.signStatus == Sign::Plus ? 0 : 1) << '\n';
+	return out;
 }
-*/
+
 
 
 

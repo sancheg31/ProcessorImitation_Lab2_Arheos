@@ -43,13 +43,13 @@ bool FileParser::parse(Processor<Bits, Size> pros) {
 		std::cout << "Incorrect input or output file name";
 		return false;
 	}
-	string str;
+	char str[256];
 	while (inFile.good()) {
-		inFile >> str;
-		pros.addCommand(str);
-		pros.out(std::cout);
+		inFile.getline(str, 256, '\n');
+		pros.addCommand(string(str));
+		std::cout << pros;
 		pros.doCommand();
-		pros.out(std::cout);
+		std::cout << pros;
 	}
 	return true;
 }
