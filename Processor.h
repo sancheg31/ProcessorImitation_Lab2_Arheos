@@ -36,10 +36,12 @@ public:
 
 private:
 
+	const Register<Bits>& findRegister(const string& s) const;
+
 	int tactNumber;
 	int commandNumber;
 	Sign signStatus;
-	std::vector<std::string> operations;
+	std::vector<string> operations;
 	std::array<Register<Bits>, N> registers;
 	CommandParser parser;
 };
@@ -48,17 +50,31 @@ template <size_t Bits, size_t N>
 Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0) { }
 
 template <size_t Bits, size_t N>
+const Register<Bits>& Processor<Bits, N>::findRegister(const string& s) const {
+	for (const auto& x : registers)
+		if (x.name() == s)
+			return x;
+}
+
+template <size_t Bits, size_t N>
 void Processor<Bits, N>::addCommand(const std::string& command) {
 	tactNumber = 0;
-	//parser.parse(command);
+	parser.parse(command);
 	operations.push_back(command);
 	++commandNumber; ++tactNumber;
-	//signStatus = registers[parser.registerNumber() - 1].test(Bits - 1);
+	signStatus = (findRegister(parser.firstRegisterName())).test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
 }
 
 template <size_t Bits, size_t N>
 void Processor<Bits, N>::doCommand() {
-	//signStatus = parser.sign() == '-' ? Sign::Minus : Sign::Plus;
+
+	auto reg1 = findRegister(parser.firstRegisterName());
+	if (parser.type() == OperationType::BinaryOperation) {
+
+		auto reg2 = findRegister(parser.secondRegisterName());
+	}
+	signStatus = reg1.test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
+
 }
 
 /*
@@ -77,6 +93,7 @@ std::ostream& operator<<(std::ostream& out, const Processor<Bits, N>& pros) {
 
 }
 */
+
 
 
 

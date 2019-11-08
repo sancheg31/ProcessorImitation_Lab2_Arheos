@@ -13,7 +13,12 @@ class CommandParser {
 public:
 
 	CommandParser();
+	
 	void parse(const string& s);
+
+	string firstRegisterName() const { return firstReg; }
+	string secondRegisterName() const { return secondReg; }
+	OperationType type() const { return opType; }
 
 	template <size_t N1, size_t N2, size_t N3 = max(N1, N2)>
 	const Register<N3>& operator()(const Register<N1>&, const Register<N2>&) const;
@@ -22,6 +27,10 @@ public:
 	const Register<Bits>& operator()(Register<Bits>&) const;
 	
 private:
+
+	string firstReg;
+	string secondReg;
+	
 	Sign sign;
 	OperationType opType;
 	int number;
