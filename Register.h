@@ -34,10 +34,10 @@ public:
 	Register& operator<<=(int bits) { return regNumber >>= bits; }
 	Register& operator>>=(int bits) { return regNumber <<= bits; }
 
-	template <size_t N1, size_t N2>
-	friend Register operator+(const Register<N1>& reg1, const Register<N2>& reg2) { return reg1; }
-	template <size_t N1, size_t N2>
-	friend Register operator-(const Register<N1>& reg1, const Register<N2>& reg2) { return reg1; }
+	template <size_t Bits>
+	friend Register<Bits> operator+(const Register<Bits>& reg1, const Register<Bits>& reg2);
+	template <size_t Bits>
+	friend Register<Bits> operator-(const Register<Bits>& reg1, const Register<Bits>& reg2);
 	
 	template <size_t Bits>
 	friend Register<Bits> operator&(const Register<Bits>& ob1, const Register<Bits>& ob2);
@@ -91,7 +91,7 @@ template <size_t Bits>
 Register<Bits> operator&(const Register<Bits>& ob1, const Register<Bits>& ob2) {
 	bitset<Bits> s;
 	for (int i = 0; i < Bits; ++i)
-		s.set(i, ob1.regNumber.test(i) | ob2.regNumber.test(i));
+		s.set(i, ob1.regNumber.test(i) & ob2.regNumber.test(i));
 	return Register<Bits>(s.to_ulong(), ob1.name());
 }
 
@@ -99,7 +99,7 @@ template <size_t Bits>
 Register<Bits> operator|(const Register<Bits>& ob1, const Register<Bits>& ob2) { 
 	bitset<Bits> s;
 	for (int i = 0; i < Bits; ++i)
-		s.set(i, ob1.regNumber.test(i) & ob2.regNumber.test(i));
+		s.set(i, ob1.regNumber.test(i) | ob2.regNumber.test(i));
 	return Register<Bits>(s.to_ulong(), ob1.name());
 }
 
@@ -111,3 +111,20 @@ Register<Bits> operator^(const Register<Bits>& ob1, const Register<Bits>& ob2) {
 	return Register<Bits>(s.to_ulong(), ob1.name());
 }
 
+template <size_t Bits>
+Register<Bits> operator+(const Register<Bits>& ob1, const Register<Bits>& ob2) {	
+	bitset<Bits> s; 
+	int rem = 0;
+	for (int i = 0; i < Bits; ++i) {
+		s.set(i, (ob1.regNumber.test(i) + ob2.regNumber.test(i) + rem) % 2);
+		rem = ob2.regNumber.test(i) & ob2.regNumber.test(i);
+	}
+	return Register<Bits>(s.to_ulong(), ob1.name());
+}
+
+template <size_t Bits>
+Register<Bits> operator-(const Register<Bits>& ob1, const Register<Bits>& ob2) {
+	bitset<Bits> s = ob2.regNumber;
+	ob2.invert(s);
+	return ob1 + Register<Bits>(s.to_ulong(), ob2.name());
+}

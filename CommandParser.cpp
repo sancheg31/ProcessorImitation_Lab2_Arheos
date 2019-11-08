@@ -20,7 +20,7 @@ void CommandParser::parse(const string& s) {
 	if (regex_match(s, results, regUnary)) {
 		opType = OperationType::UnaryOperation;
 	}
-	if (regex_match(s, results, regUnaryWithNumber)) {
+	else if (regex_match(s, results, regUnaryWithNumber)) {
 		opType = OperationType::UnaryOperation;
 		opValue = stoi(results[3]);
 	}
@@ -28,8 +28,9 @@ void CommandParser::parse(const string& s) {
 		opType = OperationType::BinaryOperation;
 		secondReg = results[3];
 	}
-	else
+	else {
 		opType = OperationType::None;
+	}
 	opNotation = results[1];
 	firstReg = results[2];
 
