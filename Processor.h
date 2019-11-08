@@ -3,9 +3,9 @@
 #include <array>
 #include <vector>
 
+#include "CommandParser.h"
 #include "Register.h"
-
-enum class Sign { Plus = 0, Minus = 1};
+#include "Enums.h"
 
 template <size_t Bits, size_t N>
 class Processor {
@@ -13,9 +13,10 @@ public:
 
 	using iterator = typename std::array<Register<Bits>, N>::iterator;
 	using const_iterator = typename std::array<Register<Bits>, N>::const_iterator;
-	Processor();
+	Processor(const CommandParser&);
 
 	void addCommand(const std::string& s);
+	void doCommand();
 
 	int getTactNumber() const { return tactNumber; }
 	int getCommandNumber() const { return commandNumber; }
@@ -30,7 +31,9 @@ public:
 	const_iterator end() const { return registers.end(); }
 	const_iterator cend() const { return registers.cend(); }
 
-	friend std::ostream& operator<<(std::ostream&, const Processor&);
+	//template <size_t Bits, size_t N>
+	//friend std::ostream& operator<<(std::ostream&, const Processor<Bits, N>&);
+
 private:
 
 	int tactNumber;
@@ -38,6 +41,49 @@ private:
 	Sign signStatus;
 	std::vector<std::string> operations;
 	std::array<Register<Bits>, N> registers;
-
+	CommandParser parser;
 };
+
+template <size_t Bits, size_t N>
+Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0) { }
+
+template <size_t Bits, size_t N>
+void Processor<Bits, N>::addCommand(const std::string& command) {
+	tactNumber = 0;
+	//parser.parse(command);
+	operations.push_back(command);
+	++commandNumber; ++tactNumber;
+	//signStatus = registers[parser.registerNumber() - 1].test(Bits - 1);
+}
+
+template <size_t Bits, size_t N>
+void Processor<Bits, N>::doCommand() {
+	//signStatus = parser.sign() == '-' ? Sign::Minus : Sign::Plus;
+}
+
+/*
+template <size_t Bits, size_t N>
+std::ostream& operator<<(std::ostream& out, const Processor<Bits, N>& pros) {
+	if (pros.operations.empty())
+		return;
+	out << "Command is: " << *pros.operations.end();
+	int i = 1;
+	for (auto it = registers.begin(); it != registers.end(); ++it, ++i)
+		out << "R" << i << " " << x.to_string() << '\n';
+
+	out << "PC " << commandNumber << '\n';
+	out << "TC " << tactNumber << '\n';
+	out << "PS " << signStatus == Sign::Plus ? 0 : 1;
+
+}
+*/
+
+
+
+
+
+
+
+
+
 

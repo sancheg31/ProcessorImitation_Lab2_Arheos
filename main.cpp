@@ -3,16 +3,17 @@
 
 #include "Register.h"
 #include "Processor.h"
+
+#include "CommandParser.h"
 #include "FileParser.h"
 
 using std::cout;
 
 int main() {
 
-	FileParser parser;
-	parser.setInputFile("input.txt");
-	parser.setOutputFile("output.txt");
-	cout << parser.parse(Processor<32, 5>{}) << '\n';
+	FileParser parser("input.txt", "output.txt");
+	Processor<32, 5> pros(CommandParser{});
+	cout << parser.parse(pros) << '\n';
 
 	return 0;
 }

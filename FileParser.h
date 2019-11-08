@@ -8,52 +8,44 @@ using std::ifstream;
 using std::ofstream;
 using std::string;
 
+template <size_t Bits, size_t N>
+class Processor;
 
 class FileParser {
 public:
 
-	enum class ClassState { Normal = 0, IllInformed = 1 };
-	FileParser() = default;
+	enum class FileParserState { Normal = 0, IllInformed = 1 };
+
+	FileParser();
+	FileParser(const string&, const string&);
 	FileParser(const FileParser&) = default;
 	FileParser& operator=(const FileParser&) = default;
-	FileParser(const string&, const string&);
 	~FileParser();
 
 	template <size_t Bits, size_t Size>
-	bool parse(const Processor<Bits, Size>&);
+	bool parse(Processor<Bits, Size>);
 	
 	void setInputFile(const string& s) { inFile.open(s, std::ios_base::in); st = checkState(); }
 	void setOutputFile(const string& s) { outFile.open(s, std::ios_base::out); st = checkState(); }
 
 private:
-	ClassState checkState() const { return (inFile.is_open() && outFile.is_open()) ? ClassState::Normal : ClassState::IllInformed; }
-	ClassState st;
+	FileParserState checkState() const { return (inFile.is_open() && outFile.is_open()) ? FileParserState::Normal : FileParserState::IllInformed; }
+	FileParserState st;
 	ifstream inFile;
 	ofstream outFile;
 };
 
-FileParser::FileParser(const string& in, const string& out) {
-	inFile.open(in, std::ios_base::in);
-	outFile.open(out, std::ios_base::out);
-	st = checkState();
-}
-
-FileParser::~FileParser() {
-	if (inFile.is_open())
-		inFile.close();
-	if (outFile.is_open())
-		outFile.close();
-}
-
 template<size_t Bits, size_t Size>
-bool FileParser::parse(const Processor<Bits, Size>& pros) {
-	if (st == ClassState::IllInformed)
+bool FileParser::parse(Processor<Bits, Size> pros) {
+	if (st == FileParserState::IllInformed)
 		return false;
 	string str;
 	while (inFile.good()) {
 		inFile >> str;
 		pros.addCommand(str);
-		outFile << pros;
+		//outFile << pros;
+		pros.doCommand();
+		//outFile << pros;
 	}
 	return true;
 }
