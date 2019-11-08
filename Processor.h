@@ -11,11 +11,11 @@ template <size_t Bits, size_t N>
 class Processor {
 public:
 
-	using iterator = typename std::array<N, Register<Bits>>::iterator;
-	using const_iterator = typename std::array<N, Register<Bits>>::const_iterator;
+	using iterator = typename std::array<Register<Bits>, N>::iterator;
+	using const_iterator = typename std::array<Register<Bits>, N>::const_iterator;
 	Processor();
 
-	addCommand(const std::string& s);
+	void addCommand(const std::string& s);
 
 	int getTactNumber() const { return tactNumber; }
 	int getCommandNumber() const { return commandNumber; }
@@ -30,14 +30,14 @@ public:
 	const_iterator end() const { return registers.end(); }
 	const_iterator cend() const { return registers.cend(); }
 
-	friend ostream& operator<<(ostream&, const Processor&);
+	friend std::ostream& operator<<(std::ostream&, const Processor&);
 private:
 
 	int tactNumber;
-	int CommandNumber;
+	int commandNumber;
 	Sign signStatus;
 	std::vector<std::string> operations;
-	std::array<N, Register<Bits>> registers;
+	std::array<Register<Bits>, N> registers;
 
 };
 

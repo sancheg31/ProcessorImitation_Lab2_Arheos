@@ -3,21 +3,24 @@
 #include <bitset>
 #include <string>
 
+using std::bitset;
+using std::string;
+
 template <size_t N>
 class Register {
 public:
 	Register();
-	Register(int n, std::string name);
+	Register(int n, string name);
 
 	Register(const Register&) = default;
-	Register& operator=(const Register&) = default;
+	Register<N>& operator=(const Register<N>&) = default;
 	~Register() = default;
 
 	void setNumber(int n) { number = intToSet(n); }
-	void setName(const std::string& s) { name = s; }
+	void setName(const string& s) { name = s; }
 
 	int getNumber() const { return setToInt(number); }
-	std::string getName() const { return name; }
+	string getName() const { return name; }
 
 	void invert();
 	Register& operator<<(int bits);
@@ -35,11 +38,15 @@ public:
 
 private:
 
-	bitset<N> intToSet(int) const;
-	int setToInt(bitset<N>) const;
+	bitset<N> intToSet(int) const {
+		return nullptr;
+	}
+	int setToInt(bitset<N>) const {
+		return nullptr;
+	}
 
-	std::bitset<N> number;
-	std::string name;
+	bitset<N> number;
+	string name;
 
 };
 
