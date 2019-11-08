@@ -88,11 +88,26 @@ bitset<Bits> Register<Bits>::intToBitSet(int n) const {
 }
 
 template <size_t Bits>
-Register<Bits> operator&(const Register<Bits>& ob1, const Register<Bits>& ob2) { return Register<Bits>((ob1.regNumber | ob2.regNumber).test(0), ob1.name()); }
+Register<Bits> operator&(const Register<Bits>& ob1, const Register<Bits>& ob2) {
+	bitset<Bits> s;
+	for (int i = 0; i < Bits; ++i)
+		s.set(i, ob1.regNumber.test(i) | ob2.regNumber.test(i));
+	return Register<Bits>(s.to_ulong(), ob1.name());
+}
 
 template <size_t Bits>
-Register<Bits> operator|(const Register<Bits>& ob1, const Register<Bits>& ob2) { return Register<Bits>((ob1.regNumber | ob2.regNumber).test(0), ob1.name()); }
+Register<Bits> operator|(const Register<Bits>& ob1, const Register<Bits>& ob2) { 
+	bitset<Bits> s;
+	for (int i = 0; i < Bits; ++i)
+		s.set(i, ob1.regNumber.test(i) & ob2.regNumber.test(i));
+	return Register<Bits>(s.to_ulong(), ob1.name());
+}
 
 template <size_t Bits>
-Register<Bits> operator^(const Register<Bits>& ob1, const Register<Bits>& ob2) { return Register<Bits>((ob1.regNumber | ob2.regNumber).test(0), ob1.name()); }
+Register<Bits> operator^(const Register<Bits>& ob1, const Register<Bits>& ob2) { 
+	bitset<Bits> s;
+	for (int i = 0; i < Bits; ++i)
+		s.set(i, ob1.regNumber.test(i) ^ ob2.regNumber.test(i));
+	return Register<Bits>(s.to_ulong(), ob1.name());
+}
 

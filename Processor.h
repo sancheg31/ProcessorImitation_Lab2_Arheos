@@ -67,6 +67,7 @@ int Processor<Bits, N>::findRegister(const string& s) {
 			return i;
 		++i;
 	}
+	return 0;
 }
 
 template <size_t Bits, size_t N>

@@ -12,10 +12,15 @@ CommandParser::CommandParser() : firstReg("R1"), secondReg("R2"), sign(Sign::Non
 
 void CommandParser::parse(const string& s) {
 
-	regex regUnary(R"((\w{2,}) (R\d{1,}), ([-][1-9][0-9]{0,}))", std::regex_constants::ECMAScript | std::regex_constants::icase);
+	regex regUnary(R"((\w{2,}) (R\d{1,}))", std::regex_constants::ECMAScript | std::regex_constants::icase);
+	regex regUnaryWithNumber(R"((\w{2,}) (R\d{1,}), (-?[1-9][0-9]{0,}))", std::regex_constants::ECMAScript | std::regex_constants::icase);
 	regex regBinary(R"((\w{2,}) (R\d{1,}), (R\d{1,}))", std::regex_constants::ECMAScript | std::regex_constants::icase);
 	smatch results;
+
 	if (regex_match(s, results, regUnary)) {
+		opType = OperationType::UnaryOperation;
+	}
+	if (regex_match(s, results, regUnaryWithNumber)) {
 		opType = OperationType::UnaryOperation;
 		opValue = stoi(results[3]);
 	}
