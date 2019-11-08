@@ -38,7 +38,7 @@ public:
 
 private:
 
-	Register<Bits>& findRegister(const string& s);
+	int findRegister(const string& s);
 
 	int tactNumber;
 	int commandNumber;
@@ -60,10 +60,13 @@ Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Si
 }
 
 template <size_t Bits, size_t N>
-Register<Bits>& Processor<Bits, N>::findRegister(const string& s) {
-	for (auto& x : registers)
+int Processor<Bits, N>::findRegister(const string& s) {
+	int i = 0;
+	for (auto& x : registers) {
 		if (x.name() == s)
-			return x;
+			return i;
+		++i;
+	}
 }
 
 template <size_t Bits, size_t N>
@@ -72,21 +75,22 @@ void Processor<Bits, N>::addCommand(const std::string& command) {
 	parser.parse(command);
 	operations.push_back(command);
 	++commandNumber; ++tactNumber;
-	signStatus = (findRegister(parser.firstRegisterName())).test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
+	int reg = findRegister(parser.firstRegisterName());
+	signStatus = registers[reg].test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
 }
 
 template <size_t Bits, size_t N>
 void Processor<Bits, N>::doCommand() {
 	++tactNumber;
-	auto reg1 = findRegister(parser.firstRegisterName());
+	int reg1 = findRegister(parser.firstRegisterName());
 	if (parser.type() == OperationType::BinaryOperation) {
-		auto reg2 = findRegister(parser.secondRegisterName());
-		reg1 = parser(reg1, reg2);
+		int reg2 = findRegister(parser.secondRegisterName());
+		registers[reg1] = parser(registers[reg1], registers[reg2]);
 	}
 	else if (parser.type() == OperationType::UnaryOperation) {
-		reg1 = parser(reg1);
+		registers[reg1] = parser(registers[reg1]);
 	}
-	signStatus = reg1.test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
+	signStatus = registers[reg1].test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
 }
 
 template <size_t Bits, size_t N>

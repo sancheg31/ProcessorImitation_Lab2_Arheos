@@ -12,11 +12,11 @@ template <size_t Bits>
 class Register {
 public:
 	
-	Register() : register_value(Bits) {}
-	Register(int n, string str) : register_value(Bits), regNumber(intToBitSet(n)), regName(str) {}
-	Register(const Register& ob) : register_value(Bits), regNumber(ob.regNumber), regName(ob.regName) {}
+	Register() = default;
+	Register(int n, string str);
+	Register(const Register& ob) = default;
 
-	Register<Bits>& operator=(const Register<Bits>& ob) { regNumber = ob.regNumber; regName = ob.regName; return *this;  }
+	Register<Bits>& operator=(const Register<Bits>& ob) = default;
 	~Register() = default;
 
 	void setNumber(int n) { regNumber = intToBitSet(n); }
@@ -53,7 +53,6 @@ public:
 		return *this;
 	}
 
-	const int register_value;
 private:
 
 	bitset<Bits> intToBitSet(int n) const;
@@ -63,11 +62,16 @@ private:
 
 };
 
+template <size_t Bits>
+Register<Bits>::Register(int n, string str): regNumber(intToBitSet(n)), regName(str) {
+
+}
 
 template <size_t Bits>
 bitset<Bits> Register<Bits>::intToBitSet(int n) const {
 	bitset<Bits> temp;
 	bool isNegative = n < 0;
+	n = std::abs(n);
 	for (int i = 0; i < Bits && n > 0; ++i, n /= 2) {
 		temp.set(i, (bool)(n % 2));
 	}

@@ -41,15 +41,15 @@ template <size_t N1, size_t N2, size_t N3>
 Register<N3> CommandParser::operator()(const Register<N1>& reg1, const Register<N2>& reg2) const {
 	if (opType != OperationType::BinaryOperation)
 		return Register<N3>();
-	if (opNotation == string("add"))
+	else if (opNotation == string("add"))
 		return reg1 + reg2;
-	if (opNotation == string("substract"))
+	else if (opNotation == string("substract"))
 		return reg1 - reg2;
-	if (opNotation == string("or"))
+	else if (opNotation == string("or"))
 		return reg1 | reg2;
-	if (opNotation == string("and"))
+	else if (opNotation == string("and"))
 		return reg1 & reg2;
-	if (opNotation == string("xor"))
+	else if (opNotation == string("xor"))
 		return reg1 ^ reg2;
 }
 
@@ -57,9 +57,9 @@ template <size_t Bits>
 const Register<Bits>& CommandParser::operator()(Register<Bits>& reg) const {
 	if (opType != OperationType::UnaryOperation)
 		return Register<Bits>();
-	if (opNotation == string("mov"))
+	else if (opNotation == string("mov"))
 		reg.setNumber(opValue);
-	if (opNotation == string("invert"))
+	else if (opNotation == string("invert"))
 		~reg;
 	return reg;
 }
