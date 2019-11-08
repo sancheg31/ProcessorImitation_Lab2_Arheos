@@ -35,17 +35,21 @@ private:
 	ofstream outFile;
 };
 
+#include <iostream>
+
 template<size_t Bits, size_t Size>
 bool FileParser::parse(Processor<Bits, Size> pros) {
-	if (st == FileParserState::IllInformed)
+	if (st == FileParserState::IllInformed) {
+		std::cout << "Incorrect input or output file name";
 		return false;
+	}
 	string str;
 	while (inFile.good()) {
 		inFile >> str;
 		pros.addCommand(str);
-		//outFile << pros;
+		pros.out(std::cout);
 		pros.doCommand();
-		//outFile << pros;
+		pros.out(std::cout);
 	}
 	return true;
 }

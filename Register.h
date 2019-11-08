@@ -21,7 +21,7 @@ public:
 	void setNumber(int n) { regNumber = intToBitSet(n); }
 	void setName(const string& s) { regName = s; }
 
-	int number() const { return regNumber.to_string(); }
+	string number() const { return regNumber.to_string(); }
 	string name() const { return regName; }
 	bool test(size_t pos) const { return regNumber.test(pos); }
 

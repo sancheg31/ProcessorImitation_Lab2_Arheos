@@ -31,12 +31,13 @@ public:
 	const_iterator end() const { return registers.end(); }
 	const_iterator cend() const { return registers.cend(); }
 
+	void out(std::ostream&) const;
 	//template <size_t Bits, size_t N>
 	//friend std::ostream& operator<<(std::ostream&, const Processor<Bits, N>&);
 
 private:
 
-	const Register<Bits>& findRegister(const string& s) const;
+	Register<Bits>& findRegister(const string& s);
 
 	int tactNumber;
 	int commandNumber;
@@ -50,8 +51,8 @@ template <size_t Bits, size_t N>
 Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0) { }
 
 template <size_t Bits, size_t N>
-const Register<Bits>& Processor<Bits, N>::findRegister(const string& s) const {
-	for (const auto& x : registers)
+Register<Bits>& Processor<Bits, N>::findRegister(const string& s) {
+	for (auto& x : registers)
 		if (x.name() == s)
 			return x;
 }
@@ -67,14 +68,30 @@ void Processor<Bits, N>::addCommand(const std::string& command) {
 
 template <size_t Bits, size_t N>
 void Processor<Bits, N>::doCommand() {
-
+	++tactNumber;
 	auto reg1 = findRegister(parser.firstRegisterName());
 	if (parser.type() == OperationType::BinaryOperation) {
-
 		auto reg2 = findRegister(parser.secondRegisterName());
+		reg1 = parser(reg1, reg2);
+	}
+	else if (parser.type() == OperationType::UnaryOperation) {
+		reg1 = parser(reg1);
 	}
 	signStatus = reg1.test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
+}
 
+template <size_t Bits, size_t N>
+void Processor<Bits, N>::out(std::ostream& outStream) const {
+	//if (operations.empty())
+	//	return;
+	//outStream << "Command is: " << operations[operations.size() - 1];
+	int i = 1;
+	for (auto it = registers.begin(); it != registers.end(); ++it, ++i)
+		outStream << "R" << i << " " << (it->number()) << '\n';
+
+	outStream << "PC " << commandNumber << '\n';
+	outStream << "TC " << tactNumber << '\n';
+	outStream << "PS " << (signStatus == Sign::Plus ? 0 : 1) << '\n';
 }
 
 /*
@@ -84,12 +101,12 @@ std::ostream& operator<<(std::ostream& out, const Processor<Bits, N>& pros) {
 		return;
 	out << "Command is: " << *pros.operations.end();
 	int i = 1;
-	for (auto it = registers.begin(); it != registers.end(); ++it, ++i)
-		out << "R" << i << " " << x.to_string() << '\n';
+	for (auto it = pros.registers.begin(); it != pros.registers.end(); ++it, ++i)
+		out << "R" << i << " " << it->to_string() << '\n';
 
-	out << "PC " << commandNumber << '\n';
-	out << "TC " << tactNumber << '\n';
-	out << "PS " << signStatus == Sign::Plus ? 0 : 1;
+	out << "PC " << pros.commandNumber << '\n';
+	out << "TC " << pros.tactNumber << '\n';
+	out << "PS " << pros.signStatus == Sign::Plus ? 0 : 1;
 
 }
 */
