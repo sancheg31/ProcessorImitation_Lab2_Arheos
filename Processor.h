@@ -32,8 +32,6 @@ public:
 	iterator end() { return registers.end(); }
 	const_iterator end() const { return registers.end(); }
 	const_iterator cend() const { return registers.cend(); }
-
-	void out(std::ostream&) const;
 	
 	template <size_t Bits, size_t N>
 	friend std::ostream& operator<<(std::ostream&, const Processor<Bits, N>&);
@@ -48,6 +46,7 @@ private:
 	std::vector<string> operations;
 	std::array<Register<Bits>, N> registers;
 	CommandParser parser;
+
 };
 
 template <size_t Bits, size_t N>
@@ -89,21 +88,6 @@ void Processor<Bits, N>::doCommand() {
 	}
 	signStatus = reg1.test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
 }
-
-template <size_t Bits, size_t N>
-void Processor<Bits, N>::out(std::ostream& outStream) const {
-	if (operations.empty())
-		return;
-	outStream << "Command is: " << operations[operations.size() - 1] << '\n';
-	int i = 1;
-	for (auto it = registers.begin(); it != registers.end(); ++it, ++i)
-		outStream << "R" << i << " " << (it->number()) << '\n';
-
-	outStream << "PC " << commandNumber << '\n';
-	outStream << "TC " << tactNumber << '\n';
-	outStream << "PS " << (signStatus == Sign::Plus ? 0 : 1) << '\n';
-}
-
 
 template <size_t Bits, size_t N>
 std::ostream& operator<<(std::ostream& out, const Processor<Bits, N>& pros) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <bitset>
 #include <string>
 
@@ -11,11 +12,11 @@ template <size_t Bits>
 class Register {
 public:
 	
-	Register() = default;
-	Register(int n, string str);
+	Register() : register_value(Bits) {}
+	Register(int n, string str) : register_value(Bits), regNumber(intToBitSet(n)), regName(str) {}
+	Register(const Register& ob) : register_value(Bits), regNumber(ob.regNumber), regName(ob.regName) {}
 
-	Register(const Register&) = default;
-	Register<Bits>& operator=(const Register<Bits>&) = default;
+	Register<Bits>& operator=(const Register<Bits>& ob) { regNumber = ob.regNumber; regName = ob.regName; return *this;  }
 	~Register() = default;
 
 	void setNumber(int n) { regNumber = intToBitSet(n); }
@@ -34,49 +35,60 @@ public:
 	Register& operator>>=(int bits) { return regNumber <<= bits; }
 
 	template <size_t N1, size_t N2>
-	friend Register operator+(const Register<N1>&, const Register<N2>&);
+	friend Register operator+(const Register<N1>& reg1, const Register<N2>& reg2) { return reg1; }
 	template <size_t N1, size_t N2>
-	friend Register operator-(const Register<N1>&, const Register<N2>&);
+	friend Register operator-(const Register<N1>& reg1, const Register<N2>& reg2) { return reg1; }
 	
-	template <size_t N1, size_t N2>
-	friend bool operator&(const Register<N1>& ob1, const Register<N2>& ob2) { return ob1 & ob2; }
-	template <size_t N1, size_t N2>
-	friend bool operator|(const Register<N1>& ob1, const Register<N2>& ob2) { return ob1 | ob2; }
-	template <size_t N1, size_t N2>
-	friend bool operator^(const Register<N1>& ob1, const Register<N2>& ob2) { return ob1 ^ ob2; }
+	template <size_t Bits>
+	friend Register<Bits> operator&(const Register<Bits>& ob1, const Register<Bits>& ob2);
+
+	template <size_t Bits>
+	friend Register<Bits> operator|(const Register<Bits>& ob1, const Register<Bits>& ob2);
+
+	template <size_t Bits>
+	friend Register<Bits> operator^(const Register<Bits>& ob1, const Register<Bits>& ob2);
 	
 	const Register<Bits>& operator~() {
 		invert(regNumber);
+		return *this;
 	}
 
+	const int register_value;
 private:
 
-	bitset<Bits> intToBitSet(int n) const {
-		bitset<Bits> temp;
-		bool isNegative = n < 0;
-		for (int i = 0; i < Bits && n > 0; ++i, n /= 2) {
-			temp.set(i, (bool)(n % 2));
-		}
-		if (isNegative) {
-			invert(temp);
-			int rem = 0, i = 0;
-			do {
-				rem = temp.test(i);
-				temp[i].flip();
-				++i;
-			} while (i < Bits && rem);
-		}
-		return temp;
-	}
+	bitset<Bits> intToBitSet(int n) const;
 
 	bitset<Bits> regNumber;
 	string regName;
 
 };
 
-template <size_t Bits>
-Register<Bits>::Register(int n, string str) : regNumber(intToBitSet(n)), regName(str) {
 
+template <size_t Bits>
+bitset<Bits> Register<Bits>::intToBitSet(int n) const {
+	bitset<Bits> temp;
+	bool isNegative = n < 0;
+	for (int i = 0; i < Bits && n > 0; ++i, n /= 2) {
+		temp.set(i, (bool)(n % 2));
+	}
+	if (isNegative) {
+		invert(temp);
+		int rem = 0, i = 0;
+		do {
+			rem = temp.test(i);
+			temp[i].flip();
+			++i;
+		} while (i < Bits && rem);
+	}
+	return temp;
 }
 
+template <size_t Bits>
+Register<Bits> operator&(const Register<Bits>& ob1, const Register<Bits>& ob2) { return Register<Bits>((ob1.regNumber | ob2.regNumber).test(0), ob1.name()); }
+
+template <size_t Bits>
+Register<Bits> operator|(const Register<Bits>& ob1, const Register<Bits>& ob2) { return Register<Bits>((ob1.regNumber | ob2.regNumber).test(0), ob1.name()); }
+
+template <size_t Bits>
+Register<Bits> operator^(const Register<Bits>& ob1, const Register<Bits>& ob2) { return Register<Bits>((ob1.regNumber | ob2.regNumber).test(0), ob1.name()); }
 

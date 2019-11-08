@@ -21,7 +21,7 @@ public:
 	OperationType type() const { return opType; }
 
 	template <size_t N1, size_t N2, size_t N3 = max(N1, N2)>
-	const Register<N3>& operator()(const Register<N1>&, const Register<N2>&) const;
+	Register<N3> operator()(const Register<N1>&, const Register<N2>&) const;
 	
 	template <size_t Bits>
 	const Register<Bits>& operator()(Register<Bits>&) const;
@@ -30,21 +30,38 @@ private:
 
 	string firstReg;
 	string secondReg;
-	
+	string opNotation;
 	Sign sign;
 	OperationType opType;
-	int number;
+	int opValue;
 
 };
 
 template <size_t N1, size_t N2, size_t N3>
-auto CommandParser::operator()(const Register<N1>&, const Register<N2>&) const -> const Register<N3>& {
-	return Register<N3>();
+Register<N3> CommandParser::operator()(const Register<N1>& reg1, const Register<N2>& reg2) const {
+	if (opType != OperationType::BinaryOperation)
+		return Register<N3>();
+	if (opNotation == string("add"))
+		return reg1 + reg2;
+	if (opNotation == string("substract"))
+		return reg1 - reg2;
+	if (opNotation == string("or"))
+		return reg1 | reg2;
+	if (opNotation == string("and"))
+		return reg1 & reg2;
+	if (opNotation == string("xor"))
+		return reg1 ^ reg2;
 }
 
 template <size_t Bits>
 const Register<Bits>& CommandParser::operator()(Register<Bits>& reg) const {
-	return Register<Bits>();
+	if (opType != OperationType::UnaryOperation)
+		return Register<Bits>();
+	if (opNotation == string("mov"))
+		reg.setNumber(opValue);
+	if (opNotation == string("invert"))
+		~reg;
+	return reg;
 }
 
 
