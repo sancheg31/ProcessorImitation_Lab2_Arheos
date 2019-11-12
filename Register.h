@@ -7,7 +7,6 @@
 using std::bitset;
 using std::string;
 
-
 template <size_t Bits>
 class Register {
 public:

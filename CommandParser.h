@@ -58,7 +58,9 @@ Register<Bits> CommandParser::evaluate(const Register<Bits>& reg1, const Registe
 	if (opType != OperationType::BinaryOperation)
 		return Register<Bits>();
 	auto op = bin.find(opNotation);
-	(*op)(reg1, reg2);
+	if (op == bin.end())
+		return Register<Bits>();
+	return op->second(reg1, reg2);
 	
 }
 
@@ -71,7 +73,9 @@ Register<Bits> CommandParser::evaluate(Register<Bits>& reg, const UnaryOperation
 		reg.setNumber(opValue);
 	else {
 		auto op = un.find(opNotation);
-		(*op)(reg);
+		if (op == un.end())
+			return Register<Bits>();
+		op->second(reg);
 	}
 	return reg;
 }

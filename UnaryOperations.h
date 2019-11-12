@@ -20,7 +20,7 @@ public:
 
 	pair<iterator, bool> insert(const string& s, function_type op) { return oper.insert(pair<string, function_type>{s, op}); }
 	void remove(const string& s) { oper.erase(s); }
-	iterator find(const string& s) const { return oper.find(s); }
+	const_iterator find(const string& s) const { return oper.find(s); }
 
 	int size() const { return oper.size(); }
 	bool contains(const string& s) const { return oper.contains(s); }
