@@ -9,6 +9,8 @@
 #include "Register.h"
 #include "Enums.h"
 
+class CommandParser;
+
 template <size_t Bits, size_t N>
 class Processor {
 public:
@@ -16,6 +18,10 @@ public:
 	using iterator = typename std::array<Register<Bits>, N>::iterator;
 	using const_iterator = typename std::array<Register<Bits>, N>::const_iterator;
 	Processor(const CommandParser&);
+	Processor(const CommandParser&, const BinaryOperations<Register<Bits>, Register<Bits>, Register<Bits>>&);
+	Processor(const CommandParser&, const UnaryOperations<Register<Bits>, Register<Bits>>&);
+	Processor(const CommandParser&, const UnaryOperations<Register<Bits>, Register<Bits>>&, 
+				const BinaryOperations<Register<Bits>, Register<Bits>, Register<Bits>>&);
 
 	void addCommand(const std::string& s);
 	void doCommand();
@@ -38,6 +44,9 @@ public:
 
 private:
 
+	UnaryOperations<Register<Bits>, Register<Bits>> un;
+	BinaryOperations<Register<Bits>, Register<Bits>, Register<Bits>> bin;
+
 	int findRegister(const string& s);
 
 	int tactNumber;
@@ -50,7 +59,7 @@ private:
 };
 
 template <size_t Bits, size_t N>
-Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0) {
+Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0), un(), bin() {
 	int i = 0;
 	for (auto& x : registers) {
 		x.setName("R" + std::to_string(i+1));
@@ -58,6 +67,42 @@ Processor<Bits, N>::Processor(const CommandParser& p) : parser(p), signStatus(Si
 		++i;
 	}
 }
+
+template<size_t Bits, size_t N>
+Processor<Bits, N>::Processor(const CommandParser& p, const BinaryOperations<Register<Bits>, Register<Bits>, Register<Bits>>& b)
+	: parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0), bin(b)  {
+	int i = 0;
+	for (auto& x : registers) {
+		x.setName("R" + std::to_string(i + 1));
+		x.setNumber(i + 1);
+		++i;
+	}
+}
+
+template<size_t Bits, size_t N>
+Processor<Bits, N>::Processor(const CommandParser& p, const UnaryOperations<Register<Bits>, Register<Bits>>& u)
+	: parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0), un(u) {
+	int i = 0;
+	for (auto& x : registers) {
+		x.setName("R" + std::to_string(i + 1));
+		x.setNumber(i + 1);
+		++i;
+	}
+}
+
+template<size_t Bits, size_t N>
+Processor<Bits, N>::Processor(const CommandParser& p, const UnaryOperations<Register<Bits>, Register<Bits>>& u, 
+								const BinaryOperations<Register<Bits>, Register<Bits>, Register<Bits>>& b):
+	parser(p), signStatus(Sign::None), tactNumber(0), commandNumber(0), un(u), bin(b) {
+	int i = 0;
+	for (auto& x : registers) {
+		x.setName("R" + std::to_string(i + 1));
+		x.setNumber(i + 1);
+		++i;
+	}
+}
+
+
 
 template <size_t Bits, size_t N>
 int Processor<Bits, N>::findRegister(const string& s) {
@@ -86,10 +131,10 @@ void Processor<Bits, N>::doCommand() {
 	int reg1 = findRegister(parser.firstRegisterName());
 	if (parser.type() == OperationType::BinaryOperation) {
 		int reg2 = findRegister(parser.secondRegisterName());
-		registers[reg1] = parser(registers[reg1], registers[reg2]);
+		registers[reg1] = parser.evaluate(registers[reg1], registers[reg2], bin);
 	}
 	else if (parser.type() == OperationType::UnaryOperation) {
-		registers[reg1] = parser(registers[reg1]);
+		registers[reg1] = parser.evaluate(registers[reg1], un);
 	}
 	signStatus = registers[reg1].test(Bits - 1) == 0 ? Sign::Plus : Sign::Minus;
 }
