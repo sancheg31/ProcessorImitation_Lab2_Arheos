@@ -25,7 +25,12 @@ public:
 	string name() const { return regName; }
 	bool test(size_t pos) const { return regNumber.test(pos); }
 
-	Register& invert() { invert(regNumber); return *this; }
+	operator int() const { return regNumber.to_ulong(); }
+	operator long() const { return regNumber.to_ullong(); }
+
+	Register& invert();
+	Register& invert(size_t n);
+	Register& swap(size_t n1, size_t n2);
 
 	Register& operator<<=(int bits) { return regNumber <<= bits; }
 	Register& operator>>=(int bits) { return regNumber >>= bits; }
@@ -52,8 +57,6 @@ public:
 private:
 
 	bitset<Bits> intToBitSet(int n) const;
-	void invert(bitset<Bits>&) const;
-
 	bitset<Bits> regNumber;
 	string regName;
 
@@ -71,7 +74,7 @@ bitset<Bits> Register<Bits>::intToBitSet(int n) const {
 		temp.set(i, (bool)(n % 2));
 	}
 	if (isNegative) {
-		invert(temp);
+		temp.flip();
 		int rem = 0, i = 0;
 		do {
 			rem = temp.test(i);
@@ -83,11 +86,27 @@ bitset<Bits> Register<Bits>::intToBitSet(int n) const {
 }
 
 template <size_t Bits>
-void Register<Bits>::invert(bitset<Bits>& bitSet) const {
-	for (int i = 0; i < Bits; ++i)
-		bitSet.flip(i);
+Register<Bits>& Register<Bits>::invert() {
+	regNumber.flip();
+	return *this;
 }
 
+template <size_t Bits>
+Register<Bits>& Register<Bits>::invert(size_t n) {
+	if (n < Bits)
+		regNumber.flip();
+	return *this;
+}
+
+template <size_t Bits>
+Register<Bits>& Register<Bits>::swap(size_t n1, size_t n2) {
+	if (n1 < Bits && n2 < Bits) {
+		bool b = regNumber[n1];
+		regNumber[n1] = regNumber[n2];
+		regNumber[n2] = b;
+	}
+	return *this;
+}
 
 //-----------operators--------------
 
@@ -128,8 +147,7 @@ Register<Bits> operator+(const Register<Bits>& ob1, const Register<Bits>& ob2) {
 
 template <size_t Bits>
 Register<Bits> operator-(const Register<Bits>& ob1, const Register<Bits>& ob2) {
-	bitset<Bits> s = ob2.regNumber;
-	ob2.invert(s);
-	return ob1 + Register<Bits>(s.to_ulong(), ob2.name());
+	Register<Bits> tempOb(ob2.regNumber.to_ulong() * (-1), "");
+	return ob1 + tempOb;
 }
 
