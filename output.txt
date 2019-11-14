@@ -1,0 +1,4 @@
+mov R1, 7
+mov R2, 7
+add R1, R2
+or R1, R3
