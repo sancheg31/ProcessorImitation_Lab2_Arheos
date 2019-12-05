@@ -14,23 +14,28 @@ using std::cout;
 
 int main() {
 
-	BinaryOperations<Register<8>, Register<8>, Register<8>> bin;
-	UnaryOperations<Register<8>, Register<8>> un;
-	bin.insert("add", [](Register<8> ob1, Register<8> ob2) { return ob1 + ob2; });
-	bin.insert("substract", [](Register<8> ob1, Register<8> ob2) { return ob1 - ob2; });
-	bin.insert("or", [](Register<8> ob1, Register<8> ob2) { return ob1 | ob2; });
-	bin.insert("and", [](Register<8> ob1, Register<8> ob2) { return ob1 & ob2; });
-	bin.insert("xor", [](Register<8> ob1, Register<8> ob2) { return ob1 ^ ob2; });
-	un.insert("invert", [](Register<8> ob) { return ob.invert(); });
+	using cur_type = Processor<16, 4>;
+	BinaryOperations<cur_type::value_type, cur_type::value_type, cur_type::value_type> bin;
+	UnaryOperations<cur_type::value_type, cur_type::value_type> un;
+	bin.insert("add", [](auto ob1, auto ob2) { return ob1 + ob2; });
+	bin.insert("substract", [](auto ob1, auto ob2) { return ob1 - ob2; });
+	bin.insert("or", [](auto ob1, auto ob2) { return ob1 | ob2; });
+	bin.insert("and", [](auto ob1, auto ob2) { return ob1 & ob2; });
+	bin.insert("xor", [](auto ob1, auto ob2) { return ob1 ^ ob2; });
+	un.insert("invert", [](auto ob) { return ob.invert(); });
 	
-	FileStreamController<std::vector<string>> controller("input.txt", "output.txt");
-	Processor<8, 5> pros(CommandParser{}, un, bin);
-	auto res = controller.read();
+	FileStreamController controller("input.txt", "output.txt");	
+	cur_type pros(CommandParser{}, un, bin);
+
+	auto res = controller.read<std::vector<std::string>>();
 	auto vec = res.value();
-	auto f = [](auto pros, auto vec) -> void {
+	auto f = [](auto pros, auto vec) {
 		for (auto& x : vec) {
+			char* c;
+			std::cin.get();
 			pros.addCommand(x);
 			std::cout << pros;
+			std::cin.get();
 			pros.doCommand();
 			std::cout << pros << '\n';
 		}

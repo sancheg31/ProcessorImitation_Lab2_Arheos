@@ -17,6 +17,8 @@ public:
 
 	using iterator = typename std::array<Register<Bits>, N>::iterator;
 	using const_iterator = typename std::array<Register<Bits>, N>::const_iterator;
+	using value_type = Register<Bits>;
+
 	Processor(const CommandParser&);
 	Processor(const CommandParser&, const BinaryOperations<Register<Bits>, Register<Bits>, Register<Bits>>&);
 	Processor(const CommandParser&, const UnaryOperations<Register<Bits>, Register<Bits>>&);
